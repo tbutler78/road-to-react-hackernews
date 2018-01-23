@@ -20,22 +20,62 @@ const list = [
   }
 ];
 
+/** 
+// ES5
+this.state = {
+  list: list,
+  };
+  // ES6
+  this.state = {
+  list,
+  };
+
+  // ES5
+var userService = {
+getUserName: function (user) {
+return user.firstname + ' ' + user.lastname;
+},
+};
+// ES6
+const userService = {
+getUserName(user) {
+return user.firstname + ' ' + user.lastname;
+},
+};
+
+// ES5
+var user = {
+name: 'Robin',
+};
+// ES6
+const key = 'name';
+const user = {
+[key]: 'Robin',
+};
+  */
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      list: list
+    };
+    console.log('props:', props);
+    console.log('state:', this.state);
+  }
+
   render() {
     return (
       <div className="App">
-        {list.map(item => 
-          
-            <div key={item.objectID}>
-              <span>
-                <a href={item.author.url}>{item.title}</a>
-              </span>
-              <span>{item.author}</span>
-              <span>{item.num_comments}</span>
-              <span>{item.points}</span>
-            </div>
-          
-        )}
+        {this.state.list.map((item) => (
+          <div key={item.objectID}>
+            <span>
+              <a href={item.author.url}>{item.title}</a>
+            </span>
+            <span>{item.author}</span>
+            <span>{item.num_comments}</span>
+            <span>{item.points}</span>
+          </div>
+        ))}
       </div>
     );
   }
