@@ -56,10 +56,9 @@ const user = {
 };
   */
 
-  const isSearched = searchTerm => item =>
-     item.title.toLowerCase().includes(searchTerm.toLowerCase());
-    
-  
+const isSearched = (searchTerm) => (item) =>
+  item.title.toLowerCase().includes(searchTerm.toLowerCase());
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -70,43 +69,63 @@ class App extends Component {
     console.log('props:', props);
     console.log('state:', this.state);
 
-  this.onDismiss = this.onDismiss.bind(this);
-   this.onSearchChange = this.onSearchChange.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
+    this.onSearchChange = this.onSearchChange.bind(this);
   }
 
-  onSearchChange(event){
-    this.setState({searchTerm: event.target.value})
+  onSearchChange(event) {
+    console.log(event.target.value);
+    this.setState({ searchTerm: event.target.value });
   }
-  onDismiss(id){
-    const isNotId = item => item.objectID !== id
+  onDismiss(id) {
+    const isNotId = (item) => item.objectID !== id;
     const updatedList = this.state.list.filter(isNotId);
-    this.setState({list: updatedList});
-    
-  
+    this.setState({ list: updatedList });
+
     console.log('onDismiss', id);
   }
 
-
   render() {
-    const {searchTerm, list} = this.state;
+    const { searchTerm, list } = this.state;
     return (
       <div className="App">
-        <form>
-          <input type="text" onChange={this.onSearchChange}/>
-        </form>
-        {list.filter(isSearched(searchTerm)).map(item => {
+        <Search searchTerm={searchTerm} onChange={this.onSearchChange} />
+        <Table list={list} pattern={searchTerm} onDismiss={this.onDismiss} />
+      </div>
+    );
+  }
+}
 
-                 return(
-          <div key={item.objectID}>
-            <span>
-              <a href={item.author.url}>{item.title}</a>
-            </span>
-            <span>{item.author}</span>
-            <span>{item.num_comments}</span>
-            <span>{item.points}</span>
-            <button onClick={() => this.onDismiss(item.objectID)} type="button">Dismiss</button>
-          </div>
-         )
+class Search extends Component {
+  render() {
+    const { value, onChange } = this.props;
+    return (
+      <form>
+        <input type="text" value={value} onChange={onChange} />
+      </form>
+    );
+  }
+}
+
+class Table extends Component {
+  render() {
+    const { list, pattern, onDismiss } = this.props;
+    return (
+      <div>
+        {list.filter(isSearched(pattern)).map((item) => {
+          return (
+            <div key={item.objectID}>
+              <span>
+                <a href={item.author.url}>{item.title}</a>
+              </span>
+              <span>{item.author}</span>
+              <span>{item.num_comments}</span>
+              <span>{item.points}</span>
+              <button onClick={() => onDismiss(item.objectID)} type="button">
+                Dismiss
+              </button>
+            </div>
+          );
         })}
       </div>
     );
