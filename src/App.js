@@ -58,6 +58,7 @@ class App extends Component {
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
     this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
   }
 
@@ -75,6 +76,13 @@ class App extends Component {
     console.log(event.target.value);
     this.setState({ searchTerm: event.target.value });
   }
+
+  onSearchSubmit(event){
+    const {searchTerm} = this.state;
+    this.fetchSearchTopStories(searchTerm);
+    event.preventDefault(); // suppress native browser behavior
+  }
+
   onDismiss(id) {
     const isNotId = (item) => item.objectID !== id;
     const updatedHits = this.state.result.hits.filter(isNotId);
@@ -103,7 +111,10 @@ class App extends Component {
     return (
       <div className="page">
         <div className="interactions">
-          <Search searchTerm={searchTerm} onChange={this.onSearchChange}>
+          <Search 
+            value={searchTerm}
+            onChange={this.onSearchChange}
+            onSubmit={this.onSearchSubmit}>
             Search:{' '}
           </Search>
         </div>
@@ -112,8 +123,7 @@ class App extends Component {
         ?
         <Table
           list={result.hits}
-          pattern={searchTerm}
-          onDismiss={this.onDismiss}
+         onDismiss={this.onDismiss}
         />
         : null
       }
@@ -122,15 +132,27 @@ class App extends Component {
   }
 }
 
-const Search = ({ value, onChange, children }) => (
-  <form>
-    {children} <input type="text" value={value} onChange={onChange} />
+const Search = ({ 
+  value, 
+  onChange, 
+  onSubmit,
+  children
+ }) => (
+  <form onSubmit={onSubmit}>
+    
+    <input 
+      type="text"
+      value={value} 
+      onChange={onChange} />
+    <button type="submit">
+      {children}
+    </button>
   </form>
 );
 
-const Table = ({ list, pattern, onDismiss }) => (
+const Table = ({ list, onDismiss }) => (
   <div className="table">
-    {list.filter(isSearched(pattern)).map((item) => {
+    {list.map((item) => {
       return (
         <div key={item.objectID} className="table-row">
           <span style={{ width: '40%' }}>
