@@ -17,13 +17,15 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      result: null,
+      results: null,
+      searchKey: '',
       searchTerm: DEFAULT_QUERY
     };
 
     console.log('props:', props);
     console.log('state:', this.state);
 
+    this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
     this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
@@ -31,17 +33,28 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this);
   }
 
-  setSearchTopStories(result) {
-    const {hits, page } = result;
+  needsToSearchTopStories(searchTerm){
+    return !this.state.results[searchTerm];
+  }
 
-    const oldHits = page !== 0 ? this.state.result.hits : [];
+  setSearchTopStories(result) {
+    const { hits, page } = result;
+    const { searchKey, results } = this.state;
+    const oldHits =
+      results && results[searchKey] ? results[searchKey].hits : [];
 
     const updatedHits = [...oldHits, ...hits];
 
-
-    this.setState({ result: {
-      hits: updatedHits, page
-    } });
+    // Save updated hits and page in a results map (by searchKey)
+    this.setState({
+      results: {
+        ...results,
+        [searchKey]: {
+          hits: updatedHits,
+          page
+        }
+      }
+    });
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
@@ -54,20 +67,35 @@ class App extends Component {
   }
   onSearchChange(event) {
     console.log(event.target.value);
-    this.setState({ searchTerm: event.target.value });
+    this.setState({
+      searchTerm: event.target.value
+    });
   }
 
   onSearchSubmit(event) {
     const { searchTerm } = this.state;
+    this.setState({
+      searchKey: searchTerm
+    });
+
+    if (this.needsToSearchTopStories(searchTerm)){
     this.fetchSearchTopStories(searchTerm);
+  }
     event.preventDefault(); // suppress native browser behavior
   }
 
   onDismiss(id) {
+    const {searchKey, results} = this.state;
+    const { hits, page } = results[searchKey];
+
     const isNotId = (item) => item.objectID !== id;
-    const updatedHits = this.state.result.hits.filter(isNotId);
+
+    const updatedHits = hits.filter(isNotId);
     this.setState({
-      result: { ...this.state.result, hits: updatedHits }
+      results: {
+        ...results,
+        [searchKey]: {hits: updatedHits, page }
+      }
       // result: Object.assign({}, this.state.result, {hits: updatedHits})
     });
 
@@ -76,12 +104,20 @@ class App extends Component {
 
   componentDidMount() {
     const { searchTerm } = this.state;
+    this.setState({
+      searchKey: searchTerm
+    });
     this.fetchSearchTopStories(searchTerm);
   }
 
   render() {
-    const { searchTerm, result } = this.state;
-    const page = (result && result.page) || 0;
+    const { searchTerm, results, searchKey } = this.state;
+    const page =
+      (results && results[searchKey] && results[searchKey].page) || 0;
+
+    const list =
+      (results && results[searchKey] && results[searchKey].hits) || [];
+
     /** Alternative conditional rendering methods
     { result && <Table />}
     if (!result) {
@@ -97,19 +133,18 @@ class App extends Component {
             onSubmit={this.onSearchSubmit}
           >
             Search:{' '}
-          </Search>
+          </Search>{' '}
         </div>
-
-        {result ? (
-          <Table list={result.hits} onDismiss={this.onDismiss} />
-        ) : null}
+       
+          <Table list={list} onDismiss={this.onDismiss} />
+      
         <div className="interactions">
           <Button
-            onClick={() => this.fetchSearchTopStories(searchTerm, page + 1)}
+            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
           >
-            More
-          </Button>
-        </div>
+            More{' '}
+          </Button>{' '}
+        </div>{' '}
       </div>
     );
   }
@@ -117,37 +152,64 @@ class App extends Component {
 
 const Search = ({ value, onChange, onSubmit, children }) => (
   <form onSubmit={onSubmit}>
-    <input type="text" value={value} onChange={onChange} />
-    <button type="submit">{children}</button>
+    <input type="text" value={value} onChange={onChange} />{' '}
+    <button type="submit"> {children} </button>{' '}
   </form>
 );
 
 const Table = ({ list, onDismiss }) => (
   <div className="table">
+    {' '}
     {list.map((item) => {
       return (
         <div key={item.objectID} className="table-row">
-          <span style={{ width: '40%' }}>
-            <a href={item.author.url}>{item.title}</a>
-          </span>
-          <span style={{ width: '30%' }}>{item.author}</span>
-          <span style={{ width: '10%' }}>{item.num_comments}</span>
-          <span style={{ width: '10%' }}>{item.points}</span>
+          <span
+            style={{
+              width: '40%'
+            }}
+          >
+            <a href={item.author.url}> {item.title} </a>{' '}
+          </span>{' '}
+          <span
+            style={{
+              width: '30%'
+            }}
+          >
+            {' '}
+            {item.author}{' '}
+          </span>{' '}
+          <span
+            style={{
+              width: '10%'
+            }}
+          >
+            {' '}
+            {item.num_comments}{' '}
+          </span>{' '}
+          <span
+            style={{
+              width: '10%'
+            }}
+          >
+            {' '}
+            {item.points}{' '}
+          </span>{' '}
           <Button
             onClick={() => onDismiss(item.objectID)}
             className="button-inline"
           >
-            Dismiss
-          </Button>
+            Dismiss{' '}
+          </Button>{' '}
         </div>
       );
-    })}
+    })}{' '}
   </div>
 );
 
 const Button = ({ onClick, className = '', children }) => (
   <button onClick={onClick} className={className} type="button">
-    {children}
+    {' '}
+    {children}{' '}
   </button>
 );
 
