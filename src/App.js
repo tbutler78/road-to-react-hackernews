@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import fetch from 'isomorphic-fetch';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100';
@@ -10,8 +11,6 @@ const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
 
-const isSearched = (searchTerm) => (item) =>
-  item.title.toLowerCase().includes(searchTerm.toLowerCase());
 
 class App extends Component {
   constructor(props) {
@@ -22,9 +21,6 @@ class App extends Component {
       searchTerm: DEFAULT_QUERY,
       error: null
     };
-
-    console.log('props:', props);
-    console.log('state:', this.state);
 
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
@@ -140,8 +136,8 @@ class App extends Component {
             onChange={this.onSearchChange}
             onSubmit={this.onSearchSubmit}
           >
-            Search:{' '}
-          </Search>{' '}
+            Search:
+          </Search>
         </div>
 
         { error ?
@@ -153,9 +149,9 @@ class App extends Component {
           <Button
             onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
           >
-            More{' '}
-          </Button>{' '}
-        </div>{' '}
+            More
+          </Button>
+        </div>
       </div>
     );
   }
@@ -163,14 +159,13 @@ class App extends Component {
 
 const Search = ({ value, onChange, onSubmit, children }) => (
   <form onSubmit={onSubmit}>
-    <input type="text" value={value} onChange={onChange} />{' '}
-    <button type="submit"> {children} </button>{' '}
+    <input type="text" value={value} onChange={onChange} />
+    <button type="submit"> {children} </button>
   </form>
 );
 
 const Table = ({ list, onDismiss }) => (
   <div className="table">
-    {' '}
     {list.map((item) => {
       return (
         <div key={item.objectID} className="table-row">
@@ -179,49 +174,55 @@ const Table = ({ list, onDismiss }) => (
               width: '40%'
             }}
           >
-            <a href={item.author.url}> {item.title} </a>{' '}
-          </span>{' '}
+            <a href={item.author.url}> {item.title} </a>
+          </span>
           <span
             style={{
               width: '30%'
             }}
           >
-            {' '}
-            {item.author}{' '}
-          </span>{' '}
+            
+            {item.author}
+          </span>
           <span
             style={{
               width: '10%'
             }}
           >
-            {' '}
-            {item.num_comments}{' '}
-          </span>{' '}
+            
+            {item.num_comments}
+          </span>
           <span
             style={{
               width: '10%'
             }}
           >
-            {' '}
-            {item.points}{' '}
-          </span>{' '}
+            
+            {item.points}
+          </span>
           <Button
             onClick={() => onDismiss(item.objectID)}
             className="button-inline"
           >
-            Dismiss{' '}
-          </Button>{' '}
+            Dismiss
+          </Button>
         </div>
       );
-    })}{' '}
+    })}
   </div>
 );
 
 const Button = ({ onClick, className = '', children }) => (
   <button onClick={onClick} className={className} type="button">
-    {' '}
-    {children}{' '}
+    
+    {children}
   </button>
 );
 
 export default App;
+
+export {
+  Button,
+  Search,
+  Table
+}
