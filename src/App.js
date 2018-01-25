@@ -19,7 +19,8 @@ class App extends Component {
     this.state = {
       results: null,
       searchKey: '',
-      searchTerm: DEFAULT_QUERY
+      searchTerm: DEFAULT_QUERY,
+      error: null
     };
 
     console.log('props:', props);
@@ -33,7 +34,7 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this);
   }
 
-  needsToSearchTopStories(searchTerm){
+  needsToSearchTopStories(searchTerm) {
     return !this.state.results[searchTerm];
   }
 
@@ -63,7 +64,7 @@ class App extends Component {
     )
       .then((response) => response.json())
       .then((result) => this.setSearchTopStories(result))
-      .catch((e) => e);
+      .catch((e) => this.setState({error: e}));
   }
   onSearchChange(event) {
     console.log(event.target.value);
@@ -78,14 +79,14 @@ class App extends Component {
       searchKey: searchTerm
     });
 
-    if (this.needsToSearchTopStories(searchTerm)){
-    this.fetchSearchTopStories(searchTerm);
-  }
+    if (this.needsToSearchTopStories(searchTerm)) {
+      this.fetchSearchTopStories(searchTerm);
+    }
     event.preventDefault(); // suppress native browser behavior
   }
 
   onDismiss(id) {
-    const {searchKey, results} = this.state;
+    const { searchKey, results } = this.state;
     const { hits, page } = results[searchKey];
 
     const isNotId = (item) => item.objectID !== id;
@@ -94,7 +95,7 @@ class App extends Component {
     this.setState({
       results: {
         ...results,
-        [searchKey]: {hits: updatedHits, page }
+        [searchKey]: { hits: updatedHits, page }
       }
       // result: Object.assign({}, this.state.result, {hits: updatedHits})
     });
@@ -111,7 +112,7 @@ class App extends Component {
   }
 
   render() {
-    const { searchTerm, results, searchKey } = this.state;
+    const { searchTerm, results, searchKey, error } = this.state;
     const page =
       (results && results[searchKey] && results[searchKey].page) || 0;
 
@@ -123,7 +124,14 @@ class App extends Component {
     if (!result) {
       return null;
     }
+
+      if (error){
+      return <p>Something went wrong.</p>;
+    }
     */
+
+
+
     return (
       <div className="page">
         <div className="interactions">
@@ -135,9 +143,12 @@ class App extends Component {
             Search:{' '}
           </Search>{' '}
         </div>
-       
-          <Table list={list} onDismiss={this.onDismiss} />
-      
+
+        { error ?
+           <div className="interactions"><p>Something went wrong.</p></div>
+           :
+        <Table list={list} onDismiss={this.onDismiss} />
+        }
         <div className="interactions">
           <Button
             onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
