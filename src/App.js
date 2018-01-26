@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import fetch from 'isomorphic-fetch';
+import {sortBy} from 'lodash';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 const DEFAULT_QUERY = 'redux';
@@ -14,6 +16,13 @@ const PARAM_HPP = 'hitsPerPage=';
 
 const Loading = () => <div>Loading...</div>;
 
+const SORTS = {
+  NONE: list => list,
+  TITLE: list => sortBy(list, 'title'),
+  AUTHOR: list => sortBy(list, 'author'),
+  COMMENTS: list => sortBy(list, 'num_comments').reverse(),
+  POINTS: list => sortBy(list, 'points').reverse()
+}
 
 class App extends Component {
   constructor(props) {
@@ -23,7 +32,9 @@ class App extends Component {
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
       error: null,
-      isLoading: false
+      isLoading: false,
+      sortKey: 'NONE',
+      isSortReverse: false
     };
 
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
@@ -32,6 +43,13 @@ class App extends Component {
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
+    this.onSort = this.onSort.bind(this);
+  }
+
+  onSort(sortKey){
+    const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
+
+    this.setState({sortKey, isSortReverse})
   }
 
   needsToSearchTopStories(searchTerm) {
@@ -114,7 +132,16 @@ class App extends Component {
   }
 
   render() {
-    const { searchTerm, results, searchKey, error, isLoading } = this.state;
+    const { 
+      searchTerm, 
+      results, 
+      searchKey, 
+      error, 
+      isLoading,
+      sortKey,
+      isSortReverse
+    } = this.state;
+
     const page =
       (results && results[searchKey] && results[searchKey].page) || 0;
 
@@ -156,7 +183,12 @@ const ButtonWithLoading = withLoading(Button);
             <p>Something went wrong.</p>
           </div>
         ) : (
-          <Table list={list} onDismiss={this.onDismiss} />
+          <Table 
+            list={list} 
+            onDismiss={this.onDismiss} 
+            sortKey={sortKey}
+            isSortReverse={isSortReverse}
+            onSort={this.onSort} />
         )}
         <div className="interactions">
           <ButtonWithLoading
@@ -217,10 +249,44 @@ class Search extends Component {
     );
   }
 }
+const Sort = ({sortKey, activeSortKey, onSort, children}) => 
+{
+  const sortClass = classNames('button-inline', 
+    { 'button-active': sortKey === activeSortKey }
+  );
 
-const Table = ({ list, onDismiss }) => (
+
+
+  return(
+  <Button 
+  onClick={() => onSort(sortKey)}
+  className={sortClass}>{children}</Button>
+);
+}
+  const Table = ({ list, sortKey, isSortReverse, onSort, onDismiss }) => {
+    const sortedList = SORTS[sortKey](list);
+    const reverseSortedList = isSortReverse ? sortedList.reverse() : sortedList;
+    return (
   <div className="table">
-    {list.map((item) => {
+    <div className="table-header">
+      <span style={{ width: '40%'}}>
+        <Sort sortKey={'TITLE'} onSort={onSort} activeSortKey={sortKey}>Title</Sort>
+       </span>
+       <span style={{width: '30%'}}>
+        <Sort sortKey={'AUTHOR'} onSort={onSort} activeSortKey={sortKey}>Author</Sort>
+      </span>
+      
+      <span style={{width: '10%'}}>
+      <Sort sortKey={'COMMENTS'} onSort={onSort} activeSortKey={sortKey}>Comments</Sort>
+    </span>
+    <span style={{width: '10%'}}>
+    <Sort sortKey={'POINTS'} onSort={onSort} activeSortKey={sortKey}>Points</Sort>
+    </span>
+    <span style={{width: '10%'}}>
+    Archive
+  </span>
+    </div>
+    {reverseSortedList.map(item => {
       return (
         <div key={item.objectID} className="table-row">
           <span
@@ -251,17 +317,20 @@ const Table = ({ list, onDismiss }) => (
           >
             {item.points}
           </span>
+          <span style={{width: '10%'}}>
           <Button
             onClick={() => onDismiss(item.objectID)}
             className="button-inline"
           >
             Dismiss
           </Button>
+          </span>
         </div>
       );
     })}
   </div>
 );
+  }
 
 Table.propTypes = {
   list: PropTypes.arrayOf(
