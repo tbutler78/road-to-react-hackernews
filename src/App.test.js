@@ -1,7 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import renderer from 'react-test-renderer';
+import Enzyme, {shallow} from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import App, { Search, Button, Table } from './App';
+
+Enzyme.configure({adapter: new Adapter() });
 
 describe('App', () => {
   it('renders without crashing', () => {
@@ -40,6 +44,14 @@ describe('Button', () => {
     let tree = component.toJSON();
     expect(tree).toMatchSnapshot();
   });
+
+  it('sets className correctly', () => {
+    const element = shallow(
+      <Button className="button-inline">Button</Button>
+    );
+    console.log(element);
+    expect(element.find('.button-inline').length).toBe(1);
+  })
 });
 
 describe('Table', () => {
@@ -62,4 +74,12 @@ describe('Table', () => {
     let tree = component.toJSON();
     expect(tree).toMatchSnapshot();
   });
+
+  it('shows two items in the list', () => {
+    const element = shallow(
+      <Table {...props} />
+    );
+
+    expect(element.find('.table-row').length).toBe(2);
+  })
 });
