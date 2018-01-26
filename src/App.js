@@ -13,6 +13,8 @@ const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
 
 const Loading = () => <div>Loading...</div>;
+
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -58,13 +60,13 @@ class App extends Component {
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
-    this.setState({isLoading: true});
+    this.setState({ isLoading: true });
     fetch(
       `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
     )
       .then((response) => response.json())
       .then((result) => this.setSearchTopStories(result))
-      .catch((e) => this.setState({error: e}));
+      .catch((e) => this.setState({ error: e }));
   }
   onSearchChange(event) {
     console.log(event.target.value);
@@ -119,6 +121,13 @@ class App extends Component {
     const list =
       (results && results[searchKey] && results[searchKey].hits) || [];
 
+      // Simple higher-order-component
+// Destructure by using function to exclude, ...rest instead of all via (...props)
+const withLoading = (Component) => ({ isLoading, ...rest }) =>
+isLoading ? <Loading /> : <Component {...rest} />;
+
+// Enhanced output component
+const ButtonWithLoading = withLoading(Button);
     /** Alternative conditional rendering methods
     { result && <Table />}
     if (!result) {
@@ -129,8 +138,6 @@ class App extends Component {
       return <p>Something went wrong.</p>;
     }
     */
-
-
 
     return (
       <div className="page">
@@ -144,21 +151,19 @@ class App extends Component {
           </Search>
         </div>
 
-        { error ?
-           <div className="interactions"><p>Something went wrong.</p></div>
-           :
-        <Table list={list} onDismiss={this.onDismiss} />
-        }
+        {error ? (
+          <div className="interactions">
+            <p>Something went wrong.</p>
+          </div>
+        ) : (
+          <Table list={list} onDismiss={this.onDismiss} />
+        )}
         <div className="interactions">
-        { isLoading ? 
-           <Loading />  
-           :
-          <Button
-            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
-          >
-            More
-          </Button>
-        }
+          <ButtonWithLoading
+            isLoading={isLoading}
+              onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+              More
+            </ButtonWithLoading>
         </div>
       </div>
     );
@@ -181,34 +186,35 @@ const Search = ({ value, onChange, onSubmit, children }) => (
 
 class Search extends Component {
   /**
-   * this object of ES6 class component allows referencing 
+   * this object of ES6 class component allows referencing
    * DOM node with ref attribute
    * focus on input field when component is mounted
-   * 
+   *
    * For stateless component (no this), use
    * let input;
    * <input... ref={(node) => input = node }
    */
-  componentDidMount(){
-    if (this.input){
+  componentDidMount() {
+    if (this.input) {
       this.input.focus();
     }
   }
   render() {
-    const {
-      value, onChange, onSubmit, children
-    } = this.props;
+    const { value, onChange, onSubmit, children } = this.props;
 
     return (
-    <form onSubmit={onSubmit}>
-      <input 
-        type="text"
-         value={value} 
-         onChange={onChange} 
-         ref={(node) => {this.input = node;}}/>
-      <button type="submit"> {children} </button>
-    </form>
-    )
+      <form onSubmit={onSubmit}>
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+          ref={(node) => {
+            this.input = node;
+          }}
+        />
+        <button type="submit"> {children} </button>
+      </form>
+    );
   }
 }
 
@@ -229,7 +235,6 @@ const Table = ({ list, onDismiss }) => (
               width: '30%'
             }}
           >
-            
             {item.author}
           </span>
           <span
@@ -237,7 +242,6 @@ const Table = ({ list, onDismiss }) => (
               width: '10%'
             }}
           >
-            
             {item.num_comments}
           </span>
           <span
@@ -245,7 +249,6 @@ const Table = ({ list, onDismiss }) => (
               width: '10%'
             }}
           >
-            
             {item.points}
           </span>
           <Button
@@ -275,14 +278,13 @@ Table.propTypes = {
 
 const Button = ({ onClick, className, children }) => (
   <button onClick={onClick} className={className} type="button">
-    
     {children}
   </button>
 );
 
 Button.defaultProps = {
   className: ''
-}
+};
 
 Button.propTypes = {
   onClick: PropTypes.func.isRequired,
@@ -292,8 +294,4 @@ Button.propTypes = {
 
 export default App;
 
-export {
-  Button,
-  Search,
-  Table
-}
+export { Button, Search, Table };
