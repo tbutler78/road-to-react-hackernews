@@ -34,20 +34,29 @@ describe('Search', () => {
 });
 
 describe('Button', () => {
+
+  const sayHello = () => {
+    console.log('hello')
+  }
+ const props = {
+  className: "button-inline",
+  onClick: sayHello
+  }
+
   it('renders without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Button>Button</Button>, div);
+    ReactDOM.render(<Button {...props}>Button</Button>, div);
   });
 
   test('has a valid snapshot', () => {
-    const component = renderer.create(<Button>Button</Button>);
+    const component = renderer.create(<Button {...props}>Button</Button>);
     let tree = component.toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   it('sets className correctly', () => {
     const element = shallow(
-      <Button className="button-inline">Button</Button>
+      <Button  {...props}>Button</Button>
     );
     console.log(element);
     expect(element.find('.button-inline').length).toBe(1);
@@ -59,7 +68,10 @@ describe('Table', () => {
     list: [
       { title: '1', author: '1', num_comments: 1, points: 2, objectID: 'y' },
       { title: '2', author: '2', num_comments: 1, points: 2, objectID: 'z' }
-    ]
+    ],
+    onDismiss: () => {
+      console.log('dismiss');
+    }
   };
 
   it('renders without crashing', () => {
