@@ -25,10 +25,16 @@ const SORTS = {
 };
 
 const updateSearchTopStoriesState = (hits, page) => (prevState) => {
- const {searchKey, results} = prevState;
+   const {searchKey, results} = prevState;
+   console.log(results);
   const oldHits =
   results && results[searchKey] ? results[searchKey].hits : [];
 
+  const updatedHits = [
+    ...oldHits,
+    ...hits
+  ];
+  
 return {
   results: {
     ...results,
@@ -126,6 +132,7 @@ class App extends Component {
   }
 
   render() {
+
     const { searchTerm, results, searchKey, error, isLoading } = this.state;
 
     const page =
@@ -133,7 +140,7 @@ class App extends Component {
 
     const list =
       (results && results[searchKey] && results[searchKey].hits) || [];
-
+    console.log(results);
     // Simple higher-order-component
     // Destructure by using function to exclude, ...rest instead of all via (...props)
     const withLoading = (Component) => ({ isLoading, ...rest }) =>
