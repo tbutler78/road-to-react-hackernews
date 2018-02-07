@@ -3,9 +3,10 @@ import './App.css';
 import fetch from 'isomorphic-fetch';
 import { sortBy } from 'lodash';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 
+import Search from './components/Search';
 import Table from './components/Table';
+import Button from './components/Button';
 import {DEFAULT_QUERY, PATH_BASE, PATH_SEARCH, PARAM_HPP, PARAM_PAGE, PARAM_SEARCH, DEFAULT_HPP} from './Constants';
 
 const Loading = () => <div>Loading...</div>;
@@ -197,39 +198,6 @@ const Search = ({ value, onChange, onSubmit, children }) => (
 );
 */
 
-class Search extends Component {
-  /**
-   * this object of ES6 class component allows referencing
-   * DOM node with ref attribute
-   * focus on input field when component is mounted
-   *
-   * For stateless component (no this), use
-   * let input;
-   * <input... ref={(node) => input = node }
-   */
-  componentDidMount() {
-    if (this.input) {
-      this.input.focus();
-    }
-  }
-  render() {
-    const { value, onChange, onSubmit, children } = this.props;
-
-    return (
-      <form onSubmit={onSubmit}>
-        <input
-          type="text"
-          value={value}
-          onChange={onChange}
-          ref={(node) => {
-            this.input = node;
-          }}
-        />
-        <button type="submit"> {children} </button>
-      </form>
-    );
-  }
-}
 const Sort = ({ sortKey, activeSortKey, onSort, children }) => {
   const sortClass = classNames('button-inline', {
     'button-active': sortKey === activeSortKey
@@ -244,21 +212,6 @@ const Sort = ({ sortKey, activeSortKey, onSort, children }) => {
 
 
 
-const Button = ({ onClick, className, children }) => (
-  <button onClick={onClick} className={className} type="button">
-    {children}
-  </button>
-);
-
-Button.defaultProps = {
-  className: ''
-};
-
-Button.propTypes = {
-  onClick: PropTypes.func.isRequired,
-  className: PropTypes.string,
-  children: PropTypes.node.isRequired
-};
 
 export default App;
 
