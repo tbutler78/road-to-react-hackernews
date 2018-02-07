@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import {Sort, SORTS, PATH_COMMENTS, Button} from '../App';
+import {Sort, SORTS, Button} from '../App';
+import { PATH_COMMENTS } from '../Constants';
 class Table extends Component {
     constructor(props) {
         super(props);

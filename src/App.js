@@ -6,21 +6,12 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import Table from './components/Table';
-
-const DEFAULT_QUERY = 'redux';
-const DEFAULT_HPP = '100';
-
-const PATH_BASE = 'https://hn.algolia.com/api/v1';
-const PATH_SEARCH = '/search';
-const PARAM_SEARCH = 'query=';
-const PARAM_PAGE = 'page=';
-const PARAM_HPP = 'hitsPerPage=';
-const PATH_COMMENTS = 'https://news.ycombinator.com/item?id=';
+import {DEFAULT_QUERY, PATH_BASE, PATH_SEARCH, PARAM_HPP, PARAM_PAGE, PARAM_SEARCH, DEFAULT_HPP} from './Constants';
 
 const Loading = () => <div>Loading...</div>;
 
 const SORTS = {
-  NONE: (list) => list,
+  NONE: (list) => list, 
   TITLE: (list) => sortBy(list, 'title'),
   AUTHOR: (list) => sortBy(list, 'author'),
   COMMENTS: (list) => sortBy(list, 'num_comments').reverse(),
@@ -271,4 +262,4 @@ Button.propTypes = {
 
 export default App;
 
-export { Button, Search, Table, SORTS, Sort, PATH_COMMENTS};
+export { Button, Search, Table, SORTS, Sort};
