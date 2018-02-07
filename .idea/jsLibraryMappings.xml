@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="JavaScriptLibraryMappings">
-    <file url="PROJECT" libraries="{@types/classnames, @types/enzyme, @types/enzyme-adapter-react-16, @types/isomorphic-fetch, @types/lodash, @types/prop-types, @types/react, @types/react-dom, @types/react-test-renderer}" />
-    <includedPredefinedLibrary name="Node.js Core" />
-  </component>
-</project>
