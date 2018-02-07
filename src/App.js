@@ -13,6 +13,7 @@ const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
+const PATH_COMMENTS = 'https://news.ycombinator.com/item?id=';
 
 const Loading = () => <div>Loading...</div>;
 
@@ -26,7 +27,7 @@ const SORTS = {
 
 const updateSearchTopStoriesState = (hits, page) => (prevState) => {
    const {searchKey, results} = prevState;
-   console.log(results);
+
   const oldHits =
   results && results[searchKey] ? results[searchKey].hits : [];
 
@@ -34,7 +35,7 @@ const updateSearchTopStoriesState = (hits, page) => (prevState) => {
     ...oldHits,
     ...hits
   ];
-  
+
 return {
   results: {
     ...results,
@@ -45,7 +46,7 @@ return {
   },
   isLoading: false
 };
-} 
+};
 
 class App extends Component {
   // Constructor & initial state
@@ -87,7 +88,6 @@ class App extends Component {
       .catch((e) => this.setState({ error: e }));
   }
   onSearchChange(event) {
-    console.log(event.target.value);
     this.setState({
       searchTerm: event.target.value
     });
@@ -140,7 +140,6 @@ class App extends Component {
 
     const list =
       (results && results[searchKey] && results[searchKey].hits) || [];
-    console.log(results);
     // Simple higher-order-component
     // Destructure by using function to exclude, ...rest instead of all via (...props)
     const withLoading = (Component) => ({ isLoading, ...rest }) =>
@@ -325,7 +324,7 @@ class Table extends Component {
                   width: '40%'
                 }}
               >
-                <a href={item.author.url}> {item.title} </a>
+                <a href={item.url} target="_blank"> {item.title} </a>{item.author.url}
               </span>
               <span
                 style={{
@@ -339,7 +338,7 @@ class Table extends Component {
                   width: '10%'
                 }}
               >
-                {item.num_comments}
+                <a href={PATH_COMMENTS + item.objectID} rel="noopener noreferrer" target="_blank">{item.num_comments}</a>
               </span>
               <span
                 style={{
